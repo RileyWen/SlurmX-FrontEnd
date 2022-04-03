@@ -61,6 +61,8 @@ message TaskToCtlXd {
   }
 
   string env = 12;
+
+  string cwd = 13;
 }
 
 message TaskToXd {

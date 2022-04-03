@@ -201,7 +201,9 @@ func main() {
 	req.Task.GetBatchMeta().ShScript = strings.Join(sh, "\n")
 	req.Task.Uid = uint32(os.Getuid())
 	req.Task.Env = strings.Join(os.Environ(), "||")
-
+	s, err := os.Getwd()
+	req.Task.Cwd = s
+	
 	fmt.Printf("Req:\n%v\n\n", req)
 
 	SendRequest(os.Args[1], req)
