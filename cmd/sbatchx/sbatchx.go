@@ -118,6 +118,8 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 			req.Task.PartitionName = arg.val
 		case "-o":
 			req.Task.GetBatchMeta().OutputFilePattern = arg.val
+		case "-J":
+			req.Task.Name = arg.val
 		}
 
 	}
@@ -167,7 +169,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Printf("Failed to close %s\n", file.Name())
+		}
+	}(file)
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
@@ -200,10 +207,10 @@ func main() {
 
 	req.Task.GetBatchMeta().ShScript = strings.Join(sh, "\n")
 	req.Task.Uid = uint32(os.Getuid())
+	req.Task.CmdLine = strings.Join(os.Args, " ")
+	req.Task.Cwd, _ = os.Getwd()
 	req.Task.Env = strings.Join(os.Environ(), "||")
-	s, err := os.Getwd()
-	req.Task.Cwd = s
-	
+
 	fmt.Printf("Req:\n%v\n\n", req)
 
 	SendRequest(os.Args[1], req)
