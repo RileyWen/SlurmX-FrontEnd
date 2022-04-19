@@ -41,12 +41,12 @@ func Query(serverAddr string, partition string) {
 	table.SetHeader([]string{"TaskId", "Type", "Status", "NodeIndex"})
 
 	tableData := make([][]string, len(reply.TaskMetas))
-	for _, taskMeta := range reply.TaskMetas {
+	for i := 0; i < len(reply.TaskMetas); i++ {
 		tableData = append(tableData, []string{
-			strconv.FormatUint(uint64(taskMeta.TaskId), 10),
-			taskMeta.Type.String(),
-			taskMeta.Status.String(),
-			strconv.FormatUint(uint64(taskMeta.NodeIndex), 10)})
+			strconv.FormatUint(uint64(reply.TaskIds[i]), 10),
+			reply.TaskMetas[i].Type.String(),
+			reply.TaskStatus[i].String(),
+			reply.AllocatedNodes[i]})
 	}
 
 	table.AppendBulk(tableData)

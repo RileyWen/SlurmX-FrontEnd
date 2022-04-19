@@ -210,6 +210,7 @@ func main() {
 	req.Task.CmdLine = strings.Join(os.Args, " ")
 	req.Task.Cwd, _ = os.Getwd()
 	req.Task.Env = strings.Join(os.Environ(), "||")
+	req.Task.Type = protos.TaskType_Batch
 
 	fmt.Printf("Req:\n%v\n\n", req)
 
