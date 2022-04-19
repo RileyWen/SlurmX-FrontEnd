@@ -5,16 +5,27 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 )
 
 func main() {
-	if len(os.Args) <= 2 {
-		fmt.Println("Arg must > 2")
+	if len(os.Args) <= 1 {
+		fmt.Println("Arg must > 1")
 		os.Exit(1)
 	}
 
-	serverAddr := os.Args[1]
+	conf_file, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conf_txt := make(map[string]string)
+	yaml.Unmarshal(conf_file, &conf_txt)
+	ip := conf_txt["ControlMachine"]
+	port := conf_txt["SlurmCtlXdListenPort"]
+
+	serverAddr := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
 		panic("Cannot connect to SlurmCtlXd: " + err.Error())
@@ -22,17 +33,17 @@ func main() {
 
 	stub := protos.NewSlurmCtlXdClient(conn)
 
-	if os.Args[2] == "show" {
-		if os.Args[3] == "node" {
+	if os.Args[1] == "show" {
+		if os.Args[2] == "node" {
 			var req *protos.QueryNodeInfoRequest
 			queryAll := false
 			nodeName := ""
 
-			if len(os.Args) <= 4 {
+			if len(os.Args) <= 3 {
 				req = &protos.QueryNodeInfoRequest{NodeName: ""}
 				queryAll = true
 			} else {
-				nodeName = os.Args[4]
+				nodeName = os.Args[3]
 				req = &protos.QueryNodeInfoRequest{NodeName: nodeName}
 			}
 
@@ -58,16 +69,16 @@ func main() {
 					}
 				}
 			}
-		} else if os.Args[3] == "partition" {
+		} else if os.Args[2] == "partition" {
 			var req *protos.QueryPartitionInfoRequest
 			queryAll := false
 			partitionName := ""
 
-			if len(os.Args) <= 4 {
+			if len(os.Args) <= 3 {
 				req = &protos.QueryPartitionInfoRequest{PartitionName: ""}
 				queryAll = true
 			} else {
-				partitionName := os.Args[4]
+				partitionName := os.Args[3]
 				req = &protos.QueryPartitionInfoRequest{PartitionName: partitionName}
 			}
 
