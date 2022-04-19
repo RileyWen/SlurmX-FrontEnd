@@ -26,12 +26,13 @@ func main() {
 		if os.Args[3] == "node" {
 			var req *protos.QueryNodeInfoRequest
 			queryAll := false
-			nodeName := os.Args[4]
+			nodeName := ""
 
 			if len(os.Args) <= 4 {
 				req = &protos.QueryNodeInfoRequest{NodeName: ""}
 				queryAll = true
 			} else {
+				nodeName = os.Args[4]
 				req = &protos.QueryNodeInfoRequest{NodeName: nodeName}
 			}
 
@@ -60,12 +61,13 @@ func main() {
 		} else if os.Args[3] == "partition" {
 			var req *protos.QueryPartitionInfoRequest
 			queryAll := false
-			partitionName := os.Args[4]
+			partitionName := ""
 
 			if len(os.Args) <= 4 {
 				req = &protos.QueryPartitionInfoRequest{PartitionName: ""}
 				queryAll = true
 			} else {
+				partitionName := os.Args[4]
 				req = &protos.QueryPartitionInfoRequest{PartitionName: partitionName}
 			}
 
