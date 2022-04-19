@@ -52,6 +52,8 @@ message TaskToCtlXd {
 
   string name = 7;
 
+  string name = 7;
+
   uint32 node_num = 8;
   uint32 task_per_node = 9;
 
