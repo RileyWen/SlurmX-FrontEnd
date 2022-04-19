@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes/duration"
 	"google.golang.org/grpc"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -165,7 +167,7 @@ func SendRequest(serverAddr string, req *protos.SubmitBatchTaskRequest) {
 }
 
 func main() {
-	file, err := os.Open(os.Args[2])
+	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,6 +177,15 @@ func main() {
 			log.Printf("Failed to close %s\n", file.Name())
 		}
 	}(file)
+
+	conf_file, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conf_txt := make(map[string]string)
+	yaml.Unmarshal(conf_file, &conf_txt)
+	ip := conf_txt["ControlMachine"]
+	port := conf_txt["SlurmCtlXdListenPort"]
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
@@ -213,5 +224,5 @@ func main() {
 
 	fmt.Printf("Req:\n%v\n\n", req)
 
-	SendRequest(os.Args[1], req)
+	SendRequest(fmt.Sprintf("%s:%s", ip, port), req)
 }
