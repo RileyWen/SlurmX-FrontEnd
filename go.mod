@@ -8,6 +8,7 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/olekukonko/tablewriter v0.0.5
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
