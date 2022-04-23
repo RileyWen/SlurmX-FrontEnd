@@ -62,7 +62,7 @@ func main() {
 					fmt.Printf("No node is avalable.\n")
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v\n", nodeInfo.Hostname, nodeInfo.State.String())
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(),nodeInfo.Cpus,nodeInfo.AllocCpus,nodeInfo.RealMemory,nodeInfo.AllocMem,nodeInfo.FreeMem,nodeInfo.PartitionName,nodeInfo.RunningTaskNum)
 					}
 				}
 			} else {
@@ -70,7 +70,7 @@ func main() {
 					fmt.Printf("Node %s not found.\n", nodeName)
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v\n", nodeInfo.Hostname, nodeInfo.State.String())
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(),nodeInfo.Cpus,nodeInfo.AllocCpus,nodeInfo.RealMemory,nodeInfo.AllocMem,nodeInfo.FreeMem,nodeInfo.PartitionName,nodeInfo.RunningTaskNum)
 					}
 				}
 			}
@@ -83,7 +83,7 @@ func main() {
 				req = &protos.QueryPartitionInfoRequest{PartitionName: ""}
 				queryAll = true
 			} else {
-				partitionName := os.Args[3]
+				partitionName = os.Args[3]
 				req = &protos.QueryPartitionInfoRequest{PartitionName: partitionName}
 			}
 
@@ -97,7 +97,7 @@ func main() {
 					fmt.Printf("No node is avalable.\n")
 				} else {
 					for _, partitionInfo := range reply.PartitionInfo {
-						fmt.Printf("PartitionName=%v State=%v HostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.Hostlist)
+						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d TotalMem=%d AvailMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.Hostlist)
 					}
 				}
 			} else {
@@ -105,7 +105,7 @@ func main() {
 					fmt.Printf("Partition %s not found.\n", partitionName)
 				} else {
 					for _, partitionInfo := range reply.PartitionInfo {
-						fmt.Printf("PartitionName=%v State=%v HostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.Hostlist)
+						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d TotalMem=%d AvailMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.Hostlist)
 					}
 				}
 			}
