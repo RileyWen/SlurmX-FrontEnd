@@ -5,8 +5,8 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"gopkg.in/yaml.v2"
 	"log"
 	"os"
 )
@@ -17,18 +17,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	conf_file, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	confTxt := make(map[string]string)
-
-	err = yaml.Unmarshal(confFile, &confTxt)
-	if err != nil {
-		return
-	}
-	ip := confTxt["ControlMachine"]
-	port := confTxt["SlurmCtlXdListenPort"]
+	conf_txt := make(map[string]string)
+	yaml.Unmarshal(conf_file, &conf_txt)
+	ip := conf_txt["ControlMachine"]
+	port := conf_txt["SlurmCtlXdListenPort"]
 
 	serverAddr := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
@@ -62,7 +58,7 @@ func main() {
 					fmt.Printf("No node is avalable.\n")
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(),nodeInfo.Cpus,nodeInfo.AllocCpus,nodeInfo.RealMemory,nodeInfo.AllocMem,nodeInfo.FreeMem,nodeInfo.PartitionName,nodeInfo.RunningTaskNum)
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMemory, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
 					}
 				}
 			} else {
@@ -70,7 +66,7 @@ func main() {
 					fmt.Printf("Node %s not found.\n", nodeName)
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(),nodeInfo.Cpus,nodeInfo.AllocCpus,nodeInfo.RealMemory,nodeInfo.AllocMem,nodeInfo.FreeMem,nodeInfo.PartitionName,nodeInfo.RunningTaskNum)
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMemory, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
 					}
 				}
 			}
@@ -97,7 +93,7 @@ func main() {
 					fmt.Printf("No node is avalable.\n")
 				} else {
 					for _, partitionInfo := range reply.PartitionInfo {
-						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d TotalMem=%d AvailMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.Hostlist)
+						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d AllocCpus=%d FreeCpus=%d\n\tTotalMem=%d AvailMem=%d AllocMem=%d FreeMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.AllocCpus, partitionInfo.FreeCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.AllocMem, partitionInfo.FreeMem, partitionInfo.Hostlist)
 					}
 				}
 			} else {
@@ -105,11 +101,10 @@ func main() {
 					fmt.Printf("Partition %s not found.\n", partitionName)
 				} else {
 					for _, partitionInfo := range reply.PartitionInfo {
-						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d TotalMem=%d AvailMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.Hostlist)
+						fmt.Printf("PartitionName=%v State=%v\n\tTotalNodes=%d AliveNodes=%d\n\tTotalCpus=%d AvailCpus=%d AllocCpus=%d FreeCpus=%d\n\tTotalMem=%d AvailMem=%d AllocMem=%d FreeMem=%d\n\tHostList=%v\n", partitionInfo.Name, partitionInfo.State.String(), partitionInfo.TotalNodes, partitionInfo.AliveNodes, partitionInfo.TotalCpus, partitionInfo.AvailCpus, partitionInfo.AllocCpus, partitionInfo.FreeCpus, partitionInfo.TotalMem, partitionInfo.AvailMem, partitionInfo.AllocMem, partitionInfo.FreeMem, partitionInfo.Hostlist)
 					}
 				}
 			}
 		}
 	}
-
 }
