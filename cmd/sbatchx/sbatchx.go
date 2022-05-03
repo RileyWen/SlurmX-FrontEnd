@@ -162,7 +162,7 @@ func SendRequest(serverAddr string, req *protos.SubmitBatchTaskRequest) {
 	if reply.GetOk() {
 		fmt.Printf("Task Id allocated: %d\n", reply.GetTaskId())
 	} else {
-		fmt.Printf("Task allocation failed: %s", reply.GetReason())
+		fmt.Printf("Task allocation failed: %s\n", reply.GetReason())
 	}
 }
 
