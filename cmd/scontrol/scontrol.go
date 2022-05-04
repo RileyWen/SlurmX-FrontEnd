@@ -5,11 +5,16 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"log"
 	"os"
 )
+
+type ServerAddr struct {
+	ControlMachine 			string	`yaml:"ControlMachine"`
+	SlurmCtlXdListenPort	string	`yaml:"SlurmCtlXdListenPort"`
+}
 
 func main() {
 	if len(os.Args) <= 1 {
@@ -17,14 +22,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	conf_file, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	conf_txt := make(map[string]string)
-	yaml.Unmarshal(conf_file, &conf_txt)
-	ip := conf_txt["ControlMachine"]
-	port := conf_txt["SlurmCtlXdListenPort"]
+	confTxt := ServerAddr{}
+
+	err = yaml.Unmarshal(confFile, &confTxt)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ip := confTxt.ControlMachine
+	port := confTxt.SlurmCtlXdListenPort
 
 	serverAddr := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
