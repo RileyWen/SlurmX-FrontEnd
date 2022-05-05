@@ -32,6 +32,11 @@ type SbatchArg struct {
 	val  string
 }
 
+type ServerAddr struct {
+	ControlMachine 			string	`yaml:"ControlMachine"`
+	SlurmCtlXdListenPort	string	`yaml:"SlurmCtlXdListenPort"`
+}
+
 func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 	req := new(protos.SubmitBatchTaskRequest)
 	req.Task = new(protos.TaskToCtlXd)
@@ -178,14 +183,17 @@ func main() {
 		}
 	}(file)
 
-	conf_file, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	conf_txt := make(map[string]string)
-	yaml.Unmarshal(conf_file, &conf_txt)
-	ip := conf_txt["ControlMachine"]
-	port := conf_txt["SlurmCtlXdListenPort"]
+	confTxt := ServerAddr{}
+	err = yaml.Unmarshal(confFile, &confTxt)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ip := confTxt.ControlMachine
+	port := confTxt.SlurmCtlXdListenPort
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
