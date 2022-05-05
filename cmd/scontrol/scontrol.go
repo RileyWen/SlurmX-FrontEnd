@@ -67,7 +67,7 @@ func main() {
 					fmt.Printf("No node is avalable.\n")
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMemory, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMem, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
 					}
 				}
 			} else {
@@ -75,7 +75,7 @@ func main() {
 					fmt.Printf("Node %s not found.\n", nodeName)
 				} else {
 					for _, nodeInfo := range reply.NodeInfoList {
-						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMemory, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
+						fmt.Printf("NodeName=%v State=%v CPUs=%d AllocCpus=%d FreeCpus=%d\n\tRealMemory=%d AllocMem=%d FreeMem=%d\n\tPatition=%s RunningTask=%d\n\n", nodeInfo.Hostname, nodeInfo.State.String(), nodeInfo.Cpus, nodeInfo.AllocCpus, nodeInfo.FreeCpus, nodeInfo.RealMem, nodeInfo.AllocMem, nodeInfo.FreeMem, nodeInfo.PartitionName, nodeInfo.RunningTaskNum)
 					}
 				}
 			}
