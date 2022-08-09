@@ -110,6 +110,7 @@ message PartitionInfo {
   string hostlist = 1;
   PartitionState state = 2;
   string name = 3;
+
   uint32 total_nodes = 4;
   uint32 alive_nodes = 5;
   uint32 total_cpus = 6;
