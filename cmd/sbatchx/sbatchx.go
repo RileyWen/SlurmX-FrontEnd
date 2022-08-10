@@ -52,7 +52,6 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 	}
 	req.Task.Payload = &protos.TaskToCtlXd_BatchMeta{
 		BatchMeta: &protos.BatchTaskAdditionalMeta{
-			OutputFilePattern: "/tmp/",
 		},
 	}
 
