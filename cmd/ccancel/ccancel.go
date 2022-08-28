@@ -27,16 +27,16 @@ func main() {
 	}
 
 	stub := protos.NewSlurmCtlXdClient(conn)
-	req := &protos.TerminateTaskRequest{TaskId: uint32(taskId)}
+	req := &protos.CancelTaskRequest{TaskId: uint32(taskId)}
 
-	reply, err := stub.TerminateTask(context.Background(), req)
+	reply, err := stub.CancelTask(context.Background(), req)
 	if err != nil {
 		log.Fatalf("Failed to send TerminateTask gRPC: %s", err.Error())
 	}
 
 	if reply.Ok {
-		fmt.Printf("Task #%d is terminating...", taskId)
+		fmt.Printf("Task #%d is terminating...\n", taskId)
 	} else {
-		fmt.Printf("Failed to terminating task #%d: %s", taskId, reply.Reason)
+		fmt.Printf("Failed to terminating task #%d: %s\n", taskId, reply.Reason)
 	}
 }

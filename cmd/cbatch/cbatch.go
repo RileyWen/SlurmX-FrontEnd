@@ -16,10 +16,6 @@ import (
 	"strings"
 )
 
-const (
-	INF uint32 = 0x3f3f3f3f
-)
-
 func INVALID_DURATION() *duration.Duration {
 	return &duration.Duration{
 		Seconds: 630720000000,
@@ -33,15 +29,16 @@ type SbatchArg struct {
 }
 
 type ServerAddr struct {
-	ControlMachine 			string	`yaml:"ControlMachine"`
-	SlurmCtlXdListenPort	string	`yaml:"SlurmCtlXdListenPort"`
+	ControlMachine       string `yaml:"ControlMachine"`
+	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
 }
 
 func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 	req := new(protos.SubmitBatchTaskRequest)
 	req.Task = new(protos.TaskToCtlXd)
-	req.Task.NodeNum = INF
-	req.Task.TaskPerNode = INF
+	req.Task.NodeNum = 1
+	req.Task.NtasksPerNode = 1
+	req.Task.CpusPerTask = 1
 	req.Task.TimeLimit = INVALID_DURATION()
 	req.Task.Resources = &protos.Resources{
 		AllocatableResource: &protos.AllocatableResource{
@@ -58,18 +55,24 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 
 	for _, arg := range args {
 		switch arg.name {
-		case "--node":
+		case "--nodes", "-N":
 			num, err := strconv.ParseUint(arg.val, 10, 32)
 			if err != nil {
 				return false, nil
 			}
 			req.Task.NodeNum = uint32(num)
-		case "--task-per-node":
+		case "--cpus-per-task", "-c":
 			num, err := strconv.ParseUint(arg.val, 10, 32)
 			if err != nil {
 				return false, nil
 			}
-			req.Task.TaskPerNode = uint32(num)
+			req.Task.CpusPerTask = uint32(num)
+		case "--ntasks-per-node":
+			num, err := strconv.ParseUint(arg.val, 10, 32)
+			if err != nil {
+				return false, nil
+			}
+			req.Task.NtasksPerNode = uint32(num)
 		case "--time":
 			re := regexp.MustCompile(`(.*):(.*):(.*)`)
 			result := re.FindAllStringSubmatch(arg.val, -1)
@@ -91,12 +94,6 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 			}
 
 			req.Task.TimeLimit.Seconds = int64(60*60*hh + 60*mm + ss)
-		case "-c":
-			num, err := strconv.ParseUint(arg.val, 10, 32)
-			if err != nil {
-				return false, nil
-			}
-			req.Task.Resources.AllocatableResource.CpuCoreLimit = num
 		case "--mem":
 			re := regexp.MustCompile(`(.*)([MmGg])`)
 			result := re.FindAllStringSubmatch(arg.val, -1)
@@ -115,12 +112,6 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 				req.Task.Resources.AllocatableResource.MemorySwLimitBytes = 1024 * 1024 * 1024 * sz
 				req.Task.Resources.AllocatableResource.MemoryLimitBytes = 1024 * 1024 * 1024 * sz
 			}
-		case "--ntasks-per-node":
-			num, err := strconv.ParseUint(arg.val, 10, 32)
-			if err != nil {
-				return false, nil
-			}
-			req.Task.TaskPerNode = uint32(num)
 		case "-p":
 			req.Task.PartitionName = arg.val
 		case "-o":
@@ -131,11 +122,13 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 
 	}
 
+	req.Task.Resources.AllocatableResource.CpuCoreLimit = uint64(req.Task.CpusPerTask * req.Task.NtasksPerNode)
+
 	return true, req
 }
 
 func ProcessLine(line string, sh *[]string, args *[]SbatchArg) bool {
-	re := regexp.MustCompile(`^#SBATCH`)
+	re := regexp.MustCompile(`^#CBATCH`)
 	if re.MatchString(line) {
 		split := strings.Fields(line)
 		if len(split) == 3 {
