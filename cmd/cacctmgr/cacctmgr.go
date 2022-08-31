@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"google.golang.org/grpc"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -28,9 +29,13 @@ func QueryLevelAndAccount(name string, stub protos.SlurmCtlXdClient) (bool, prot
 		panic("query entity info failed: " + err.Error())
 	}
 
-	if os.Getuid() == 0 {
+	if name == "root" {
 		//root
-		return true, protos.UserInfo_Admin, reply.UserList[0].Account
+		if reply.GetOk() {
+			return true, protos.UserInfo_Admin, reply.UserList[0].Account
+		} else {
+			return true, protos.UserInfo_Admin, ""
+		}
 	}
 
 	if reply.GetOk() {
@@ -201,15 +206,15 @@ func main() {
 
 	find, curLevel, curAccount := QueryLevelAndAccount(currentUser.Name, stub)
 	if find {
-		if curLevel == protos.UserInfo_None {
-			fmt.Println("none")
-		} else if curLevel == protos.UserInfo_Operator {
-			fmt.Println("operator")
-		} else if curLevel == protos.UserInfo_Admin {
-			fmt.Println("admin")
-		}
+		//if curLevel == protos.UserInfo_None {
+		//	fmt.Println("none")
+		//} else if curLevel == protos.UserInfo_Operator {
+		//	fmt.Println("operator")
+		//} else if curLevel == protos.UserInfo_Admin {
+		//	fmt.Println("admin")
+		//}
 	} else {
-		fmt.Printf("not found this user: %s\n", currentUser.Name)
+		fmt.Printf("%s, you are not a user in the system\n", currentUser.Name)
 	}
 
 	if os.Args[1] == "add" {
@@ -238,7 +243,7 @@ func main() {
 				account.AllowedPartition = append(account.AllowedPartition, strings.TrimSpace(s))
 			}
 
-			fmt.Printf("Req:\n%v\n\n", req)
+			//fmt.Printf("Req:\n%v\n\n", req)
 
 			reply, err := stub.AddAccount(context.Background(), req)
 			if err != nil {
@@ -300,7 +305,7 @@ func main() {
 				}
 			}
 
-			fmt.Printf("Req:\n%v\n\n", req)
+			//fmt.Printf("Req:\n%v\n\n", req)
 			reply, err := stub.AddUser(context.Background(), req)
 			if err != nil {
 				panic("add user failed: " + err.Error())
@@ -341,7 +346,7 @@ func main() {
 			Error("unknown entity name: {}", os.Args[2])
 		}
 
-		fmt.Printf("Req:\n%v\n\n", req)
+		//fmt.Printf("Req:\n%v\n\n", req)
 		reply, err := stub.DeleteEntity(context.Background(), req)
 		if err != nil {
 			panic("delete " + os.Args[2] + " " + os.Args[3] + " failed: " + err.Error())
@@ -459,7 +464,7 @@ func main() {
 		} else if *t == "delete" {
 			req.Type = protos.ModifyEntityRequest_Delete
 		}
-		fmt.Printf("Req:\n%v\n\n", req)
+		//fmt.Printf("Req:\n%v\n\n", req)
 		reply, err := stub.ModifyEntity(context.Background(), req)
 		if err != nil {
 			panic("Modify information failed: " + err.Error())
