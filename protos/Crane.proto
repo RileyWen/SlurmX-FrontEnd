@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package SlurmxGrpc;
+package crane.grpc;
 option go_package = "/protos";
 
 import "PublicDefs.proto";
@@ -33,8 +33,8 @@ message InteractiveTaskAllocReply {
 }
 
 message InteractiveTaskAllocationDetail {
-  /* Used to connect the SlurmXd node */
-  uint32 node_index = 1;
+  /* Used to connect the Craned */
+  uint32 craned_index = 1;
   string ipv4_addr = 2;
   uint32 port = 3;
   bytes resource_uuid = 4;
@@ -105,21 +105,21 @@ message SrunXStreamReply {
   }
 }
 
-message SlurmXdRegisterRequest {
+message CranedRegisterRequest {
   Negotiation header = 1;
 
   uint32 port = 2;
 
-  /* Todo: Add fields describing what tasks the SlurmXd is still running and the current usage of this node in case that
-      from CtlXd's view, this node is down due to network problem and however this node is still running.
+  /* Todo: Add fields describing what tasks the Craned is still running and the current usage of this craned in case that
+      from Ctld's view, this node is down due to network problem and however this node is still running.
   */
 }
 
-message SlurmXdRegisterResult {
+message CranedRegisterResult {
   bool ok = 1;
   oneof payload {
     // If ok is true
-    XdNodeId node_id = 2;
+    CranedId craned_id = 2;
 
     // If ok is false, reason is set.
     string reason = 3;
@@ -128,7 +128,7 @@ message SlurmXdRegisterResult {
 
 message TaskStatusChangeRequest {
   uint32 task_id = 1;
-  uint32 node_index = 2;
+  uint32 craned_index = 2;
   TaskStatus new_status = 3;
   string reason = 4;
 }
@@ -137,17 +137,17 @@ message TaskStatusChangeReply {
   bool ok = 1;
 }
 
-message QueryNodeListFromTaskIdRequest {
+message QueryCranedListFromTaskIdRequest {
   uint32 task_id = 1;
 }
 
-message QueryNodeListFromTaskIdReply {
+message QueryCranedListFromTaskIdReply {
   bool ok = 1;
-  string node_list = 2;
+  string craned_list = 2;
 }
 
 message SubmitBatchTaskRequest {
-  TaskToCtlXd task = 1;
+  TaskToCtld task = 1;
 }
 
 message SubmitBatchTaskReply {
@@ -159,7 +159,7 @@ message SubmitBatchTaskReply {
 }
 
 message ExecuteTaskRequest {
-  TaskToXd task = 1;
+  TaskToD task = 1;
 }
 
 message ExecuteTaskReply {
@@ -214,8 +214,8 @@ message QueryTaskIdFromPortReply{
 
 message QueryTaskIdFromPortForwardRequest{
   uint32 ssh_remote_port = 1;
-  string target_xd_address = 2;
-  string target_xd_port = 3;
+  string target_craned_address = 2;
+  string target_craned_port = 3;
   uint32 uid = 4;
 }
 
@@ -231,18 +231,27 @@ message QueryJobsInPartitionRequest {
 }
 
 message QueryJobsInPartitionReply {
-  repeated TaskToCtlXd task_metas = 1;
+  repeated TaskToCtld task_metas = 1;
   repeated TaskStatus task_status = 2;
-  repeated string allocated_nodes = 3;
+  repeated string allocated_craneds = 3;
   repeated uint32 task_ids = 4;
 }
 
-message QueryNodeInfoRequest {
-  string node_name = 1;
+message QueryJobsInfoRequest {
+  bool find_all = 1;
+  uint32 job_id = 2;
 }
 
-message QueryNodeInfoReply {
-  repeated NodeInfo node_info_list = 1;
+message QueryJobsInfoReply {
+  repeated TaskInfo task_info_list = 1;
+}
+
+message QueryCranedInfoRequest {
+  string craned_name = 1;
+}
+
+message QueryCranedInfoReply {
+  repeated CranedInfo craned_info_list = 1;
 }
 
 message QueryPartitionInfoRequest {
@@ -325,17 +334,17 @@ message QueryClusterInfoRequest {
 
 message QueryClusterInfoReply {
   bool ok = 1;
-  repeated PartitionNodeInfo partition_node = 2;
+  repeated PartitionCranedInfo partition_craned = 2;
 }
 
-// Todo: Divide service into two parts: one for SlurmXd and one for SrunX
+// Todo: Divide service into two parts: one for Craned and one for Crun
 //  We need to distinguish the message sender
 //  and have some kind of authentication
-service SlurmCtlXd {
-  /* RPCs called from SlurmXd*/
+service CraneCtld {
+  /* RPCs called from Craned */
   rpc TaskStatusChange(TaskStatusChangeRequest) returns (TaskStatusChangeReply);
 
-  rpc QueryNodeListFromTaskId(QueryNodeListFromTaskIdRequest) returns(QueryNodeListFromTaskIdReply);
+  rpc QueryCranedListFromTaskId(QueryCranedListFromTaskIdRequest) returns(QueryCranedListFromTaskIdReply);
 
 
   /* RPCs called from SrunX */
@@ -351,13 +360,15 @@ service SlurmCtlXd {
   rpc SubmitBatchTask(SubmitBatchTaskRequest) returns (SubmitBatchTaskReply);
 
 
-  /* RPCs called from SqueueX */
+  /* RPCs called from cqueue */
   rpc QueryJobsInPartition(QueryJobsInPartitionRequest) returns (QueryJobsInPartitionReply);
 
-  rpc QueryNodeInfo(QueryNodeInfoRequest) returns (QueryNodeInfoReply);
+  /* PRCs called from ccontrol */
+  rpc QueryJobsInfo(QueryJobsInfoRequest) returns (QueryJobsInfoReply);
+  rpc QueryCranedInfo(QueryCranedInfoRequest) returns (QueryCranedInfoReply);
   rpc QueryPartitionInfo(QueryPartitionInfoRequest) returns (QueryPartitionInfoReply);
 
-  /* RPCs called from Sacctmgr */
+  /* RPCs called from cacctmgr */
   rpc AddAccount(AddAccountRequest) returns (AddAccountReply);
   rpc AddUser(AddUserRequest) returns (AddUserReply);
 
@@ -366,16 +377,16 @@ service SlurmCtlXd {
   rpc QueryEntityInfo(QueryEntityInfoRequest) returns (QueryEntityInfoReply);
   rpc ModifyEntity(ModifyEntityRequest) returns (ModifyEntityReply);
 
-  /* RPCs called from Cinfo */
+  /* RPCs called from cinfo */
   rpc QueryClusterInfo(QueryClusterInfoRequest) returns (QueryClusterInfoReply);
 }
 
-service SlurmXd {
-  /* ----------------------------------- Called from SlurmCtlXd ---------------------------------------------------- */
+service Craned {
+  /* ----------------------------------- Called from CraneCtld ---------------------------------------------------- */
   // Todo: Granting and revoking Resource UUID can be merged into ExecuteTask and TerminateTask. Remove this two RPC.
 
   /* If the task is a batch task, it will run immediately.
-     If the task is an interactive task, slurmxd will just allocate the resource and waiting for
+     If the task is an interactive task, craned will just allocate the resource and waiting for
      further SrunXStream to execute a real task.
    */
   rpc ExecuteTask(ExecuteTaskRequest) returns(ExecuteTaskReply);
@@ -392,7 +403,7 @@ service SlurmXd {
   rpc TerminateTask(TerminateTaskRequest) returns (TerminateTaskReply);
 
 
-  /* ----------------------------------- Called from SlurmXd  ------------------------------------------------------ */
+  /* ----------------------------------- Called from Craned  ------------------------------------------------------ */
   rpc QueryTaskIdFromPort(QueryTaskIdFromPortRequest) returns (QueryTaskIdFromPortReply);
 
   /* ----------------------------------- Called from Pam Module  --------------------------------------------------- */

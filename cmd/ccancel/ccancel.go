@@ -17,16 +17,16 @@ func main() {
 		log.Fatal("Invalid task id!")
 	}
 
-	path := "/etc/slurmx/config.yaml"
+	path := "/etc/crane/config.yaml"
 	config := util.ParseConfig(path)
 
-	serverAddr := fmt.Sprintf("%s:%s", config.ControlMachine, config.SlurmCtlXdListenPort)
+	serverAddr := fmt.Sprintf("%s:%s", config.ControlMachine, config.CraneCtldListenPort)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
 		panic("Cannot connect to SlurmCtlXd: " + err.Error())
 	}
 
-	stub := protos.NewSlurmCtlXdClient(conn)
+	stub := protos.NewCraneCtldClient(conn)
 	req := &protos.CancelTaskRequest{TaskId: uint32(taskId)}
 
 	reply, err := stub.CancelTask(context.Background(), req)

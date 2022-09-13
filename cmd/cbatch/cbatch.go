@@ -29,8 +29,8 @@ type SbatchArg struct {
 }
 
 type ServerAddr struct {
-	ControlMachine       string `yaml:"ControlMachine"`
-	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
+	ControlMachine      string `yaml:"ControlMachine"`
+	CraneCtldListenPort string `yaml:"CraneCtldListenPort"`
 }
 
 func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
@@ -174,7 +174,7 @@ func main() {
 		}
 	}(file)
 
-	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	confFile, err := ioutil.ReadFile("/etc/crane/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -184,7 +184,7 @@ func main() {
 		log.Fatal(err)
 	}
 	ip := confTxt.ControlMachine
-	port := confTxt.SlurmCtlXdListenPort
+	port := confTxt.CraneCtldListenPort
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example

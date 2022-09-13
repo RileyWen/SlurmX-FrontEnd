@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	ControlMachine       string `yaml:"ControlMachine"`
-	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
+	ControlMachine      string `yaml:"ControlMachine"`
+	CraneCtldListenPort string `yaml:"CraneCtldListenPort"`
 }
 
 func ParseConfig(path string) *Config {

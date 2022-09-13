@@ -16,11 +16,11 @@ import (
 )
 
 type ServerAddr struct {
-	ControlMachine       string `yaml:"ControlMachine"`
-	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
+	ControlMachine      string `yaml:"ControlMachine"`
+	CraneCtldListenPort string `yaml:"CraneCtldListenPort"`
 }
 
-func QueryLevelAndAccount(name string, stub protos.SlurmCtlXdClient) (bool, protos.UserInfo_AdminLevel, string) {
+func QueryLevelAndAccount(name string, stub protos.CraneCtldClient) (bool, protos.UserInfo_AdminLevel, string) {
 	var req *protos.QueryEntityInfoRequest
 	req = &protos.QueryEntityInfoRequest{EntityType: protos.EntityType_User, Name: name}
 
@@ -178,7 +178,7 @@ func main() {
 		Error("Arg must > 1")
 	}
 
-	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	confFile, err := ioutil.ReadFile("/etc/crane/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,7 +189,7 @@ func main() {
 		log.Fatal(err)
 	}
 	ip := confTxt.ControlMachine
-	port := confTxt.SlurmCtlXdListenPort
+	port := confTxt.CraneCtldListenPort
 
 	serverAddr := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
@@ -197,7 +197,7 @@ func main() {
 		panic("Cannot connect to SlurmCtlXd: " + err.Error())
 	}
 
-	stub := protos.NewSlurmCtlXdClient(conn)
+	stub := protos.NewCraneCtldClient(conn)
 
 	currentUser, err := user.Current()
 	if err != nil {
