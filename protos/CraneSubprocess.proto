@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package SlurmxGrpc.Xd;
-option go_package = "/protos/xd";
+package crane.grpc.subprocess;
+option go_package = "/protos/subprocess";
 
 message CanStartMessage {
   bool ok = 1;

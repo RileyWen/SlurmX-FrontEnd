@@ -15,7 +15,7 @@ func Query(serverAddr string, partition string) {
 		panic("Cannot connect to SlurmCtlXd: " + err.Error())
 	}
 
-	stub := protos.NewSlurmCtlXdClient(conn)
+	stub := protos.NewCraneCtldClient(conn)
 
 	request := protos.QueryJobsInPartitionRequest{
 		Partition: partition,
@@ -46,7 +46,7 @@ func Query(serverAddr string, partition string) {
 			strconv.FormatUint(uint64(reply.TaskIds[i]), 10),
 			reply.TaskMetas[i].Type.String(),
 			reply.TaskStatus[i].String(),
-			reply.AllocatedNodes[i]})
+			reply.AllocatedCraneds[i]})
 	}
 
 	table.AppendBulk(tableData)

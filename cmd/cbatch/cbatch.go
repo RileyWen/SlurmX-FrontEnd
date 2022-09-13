@@ -30,7 +30,7 @@ type SbatchArg struct {
 
 type ServerAddr struct {
 	ControlMachine       string `yaml:"ControlMachine"`
-	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
+	CraneCtldListenPort  string `yaml:"CraneCtldListenPort"`
 }
 
 func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
@@ -48,8 +48,7 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 		},
 	}
 	req.Task.Payload = &protos.TaskToCtlXd_BatchMeta{
-		BatchMeta: &protos.BatchTaskAdditionalMeta{
-		},
+		BatchMeta: &protos.BatchTaskAdditionalMeta{},
 	}
 
 	for _, arg := range args {
@@ -175,7 +174,7 @@ func main() {
 		}
 	}(file)
 
-	confFile, err := ioutil.ReadFile("/etc/slurmx/config.yaml")
+	confFile, err := ioutil.ReadFile("/etc/crane/config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -185,7 +184,7 @@ func main() {
 		log.Fatal(err)
 	}
 	ip := confTxt.ControlMachine
-	port := confTxt.SlurmCtlXdListenPort
+	port := confTxt.CraneCtldListenPort
 
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
@@ -207,9 +206,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Invoking UID: %d\n\n", os.Getuid())
-	fmt.Printf("Shell script:\n%s\n\n", strings.Join(sh, "\n"))
-	fmt.Printf("Sbatch args:\n%v\n\n", args)
+	// fmt.Printf("Invoking UID: %d\n\n", os.Getuid())
+	// fmt.Printf("Shell script:\n%s\n\n", strings.Join(sh, "\n"))
+	// fmt.Printf("Sbatch args:\n%v\n\n", args)
 
 	ok, req := ProcessSbatchArg(args)
 	if !ok {
@@ -223,7 +222,7 @@ func main() {
 	req.Task.Env = strings.Join(os.Environ(), "||")
 	req.Task.Type = protos.TaskType_Batch
 
-	fmt.Printf("Req:\n%v\n\n", req)
+	// fmt.Printf("Req:\n%v\n\n", req)
 
 	SendRequest(fmt.Sprintf("%s:%s", ip, port), req)
 }
