@@ -12,8 +12,8 @@ import (
 )
 
 type ServerAddr struct {
-	ControlMachine 			string	`yaml:"ControlMachine"`
-	SlurmCtlXdListenPort	string	`yaml:"SlurmCtlXdListenPort"`
+	ControlMachine       string `yaml:"ControlMachine"`
+	SlurmCtlXdListenPort string `yaml:"SlurmCtlXdListenPort"`
 }
 
 func main() {
