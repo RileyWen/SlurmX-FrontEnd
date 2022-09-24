@@ -1,7 +1,7 @@
-package squeuex
+package cqueue
 
 import (
-	"SlurmXCli/generated/protos"
+	"CraneFrontEnd/generated/protos"
 	"context"
 	"github.com/olekukonko/tablewriter"
 	"google.golang.org/grpc"
@@ -12,7 +12,7 @@ import (
 func Query(serverAddr string, partition string) {
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
-		panic("Cannot connect to SlurmCtlXd: " + err.Error())
+		panic("Cannot connect to CraneCtld: " + err.Error())
 	}
 
 	stub := protos.NewCraneCtldClient(conn)

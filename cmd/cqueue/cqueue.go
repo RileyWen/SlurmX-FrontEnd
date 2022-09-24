@@ -1,8 +1,8 @@
 package main
 
 import (
-	"SlurmXCli/internal/squeuex"
-	"SlurmXCli/internal/util"
+	"CraneFrontEnd/internal/cqueue"
+	"CraneFrontEnd/internal/util"
 	"fmt"
 	"os"
 )
@@ -18,5 +18,5 @@ func main() {
 
 	serverAddr := fmt.Sprintf("%s:%s", config.ControlMachine, config.CraneCtldListenPort)
 
-	squeuex.Query(serverAddr, os.Args[1])
+	cqueue.Query(serverAddr, os.Args[1])
 }

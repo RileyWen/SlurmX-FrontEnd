@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SlurmXCli/generated/protos"
+	"CraneFrontEnd/generated/protos"
 	"bufio"
 	"context"
 	"fmt"
@@ -35,7 +35,7 @@ type ServerAddr struct {
 
 func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 	req := new(protos.SubmitBatchTaskRequest)
-	req.Task = new(protos.TaskToCtlXd)
+	req.Task = new(protos.TaskToCtld)
 	req.Task.NodeNum = 1
 	req.Task.NtasksPerNode = 1
 	req.Task.CpusPerTask = 1
@@ -47,7 +47,7 @@ func ProcessSbatchArg(args []SbatchArg) (bool, *protos.SubmitBatchTaskRequest) {
 			MemorySwLimitBytes: 0,
 		},
 	}
-	req.Task.Payload = &protos.TaskToCtlXd_BatchMeta{
+	req.Task.Payload = &protos.TaskToCtld_BatchMeta{
 		BatchMeta: &protos.BatchTaskAdditionalMeta{},
 	}
 
@@ -146,10 +146,10 @@ func ProcessLine(line string, sh *[]string, args *[]SbatchArg) bool {
 func SendRequest(serverAddr string, req *protos.SubmitBatchTaskRequest) {
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
-		panic("Cannot connect to SlurmCtlXd: " + err.Error())
+		panic("Cannot connect to CraneCtld: " + err.Error())
 	}
 
-	stub := protos.NewSlurmCtlXdClient(conn)
+	stub := protos.NewCraneCtldClient(conn)
 	reply, err := stub.SubmitBatchTask(context.Background(), req)
 	if err != nil {
 		panic("SubmitBatchTask failed: " + err.Error())

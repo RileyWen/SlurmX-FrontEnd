@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SlurmXCli/generated/protos"
+	"CraneFrontEnd/generated/protos"
 	"context"
 	"flag"
 	"fmt"
@@ -194,7 +194,7 @@ func main() {
 	serverAddr := fmt.Sprintf("%s:%s", ip, port)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
-		panic("Cannot connect to SlurmCtlXd: " + err.Error())
+		panic("Cannot connect to CraneCtld: " + err.Error())
 	}
 
 	stub := protos.NewCraneCtldClient(conn)

@@ -1,4 +1,4 @@
-module SlurmXCli
+module CraneFrontEnd
 
 go 1.17
 

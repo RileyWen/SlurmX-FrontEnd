@@ -1,8 +1,8 @@
 package main
 
 import (
-	"SlurmXCli/generated/protos"
-	"SlurmXCli/internal/util"
+	"CraneFrontEnd/generated/protos"
+	"CraneFrontEnd/internal/util"
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
@@ -16,7 +16,7 @@ func main() {
 	serverAddr := fmt.Sprintf("%s:%s", config.ControlMachine, config.CraneCtldListenPort)
 	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
-		panic("Cannot connect to SlurmCtlXd: " + err.Error())
+		panic("Cannot connect to CraneCtld: " + err.Error())
 	}
 
 	stub := protos.NewCraneCtldClient(conn)
