@@ -163,6 +163,16 @@ func SendRequest(serverAddr string, req *protos.SubmitBatchTaskRequest) {
 }
 
 func main() {
+	if(os.Args[1] == "-help"){
+	fmt.Printf("--node\t\tThe number of nodes that have been applied for\n" +
+		"--task-per-node\tNumber of tasks running on each node\n" +
+		"-c\t\tThe number of CPU cores requested by each node\n" +
+		"--mem\t\tMemory size requested by each node\n" +
+		"--time\t\tMaximum run time for the job\n" +
+		"-o\t\tStandard output redirection for the specified job\n" +
+		"-p\t\tThe partition/queue used by the job\n" +
+		"-J\t\tjob name\n");
+	}	
 	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
